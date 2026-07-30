@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madeleine Jiang — Engineering for Small Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#fbfbfa;
+    --sidebar-bg:#f7f6f3;
+    --text:#37352f;
+    --text-secondary:#787774;
+    --border:#e9e9e7;
+    --accent:#2f4a32;
+    --accent-soft:#eef2ec;
+    --placeholder-bg:#f1f1ef;
+    --placeholder-border:#d3d1cb;
+    --radius:6px;
+    --sidebar-w:260px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+  }
+  h1,h2,h3{
+    font-family:'Source Serif 4', Georgia, serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--text);
+  }
+
+  /* ---------- Layout shell ---------- */
+  .shell{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ---------- Sidebar (Notion-style page outline) ---------- */
+  .sidebar{
+    width:var(--sidebar-w);
+    flex-shrink:0;
+    background:var(--sidebar-bg);
+    border-right:1px solid var(--border);
+    padding:20px 12px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 8px 14px 8px;
+    font-weight:600;
+    font-size:14px;
+    color:var(--text);
+    border-bottom:1px solid var(--border);
+    margin-bottom:10px;
+  }
+  .sidebar-title .avatar-dot{
+    width:22px;height:22px;border-radius:5px;
+    background:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    color:white;font-size:12px;font-weight:700;
+    font-family:'Inter';
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 8px;
+    border-radius:5px;
+    font-size:14px;
+    color:var(--text-secondary);
+    text-decoration:none;
+    cursor:pointer;
+    transition:background .12s ease, color .12s ease;
+  }
+  .nav-item:hover{
+    background:var(--accent-soft);
+    color:var(--text);
+  }
+  .nav-item.active{
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .nav-item .emoji{font-size:14px;width:16px;text-align:center;}
+
+  /* mobile sidebar toggle */
+  .sidebar-toggle{
+    display:none;
+    position:fixed;
+    top:14px;left:14px;
+    z-index:50;
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:6px;
+    width:36px;height:36px;
+    align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:16px;
+  }
+
+  /* ---------- Main content ---------- */
+  .main{
+    flex:1;
+    min-width:0;
+    max-width:900px;
+    margin:0 auto;
+    padding-bottom:120px;
+  }
+
+  /* Cover image placeholder */
+  .cover{
+    width:100%;
+    height:260px;
+    background:
+      repeating-linear-gradient(45deg, var(--placeholder-bg), var(--placeholder-bg) 10px, #ebeae5 10px, #ebeae5 20px);
+    border-bottom:1px solid var(--border);
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .cover-label{
+    color:var(--text-secondary);
+    font-size:13px;
+    background:rgba(255,255,255,0.85);
+    padding:6px 12px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .page-header{
+    padding:0 96px;
+    margin-top:-44px;
+    position:relative;
+  }
+  .page-icon{
+    width:88px;height:88px;
+    background:var(--accent);
+    border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:40px;
+    border:4px solid var(--bg);
+    color:white;
+  }
+  .page-title{
+    font-size:44px;
+    margin:20px 0 6px 0;
+    line-height:1.15;
+  }
+  .page-subtitle{
+    color:var(--text-secondary);
+    font-size:17px;
+    margin:0 0 8px 0;
+    max-width:640px;
+  }
+  .meta-row{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    margin:18px 0 8px 0;
+    font-size:14px;
+    color:var(--text-secondary);
+  }
+  .meta-row a{color:var(--accent);text-decoration:none;}
+  .meta-row a:hover{text-decoration:underline;}
+  .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 30px 0;}
+  .tag{
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-size:13px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:20px;
+  }
+
+  .content{
+    padding:0 96px;
+  }
+
+  section{
+    padding-top:64px;
+    scroll-margin-top:30px;
+  }
+  section:first-of-type{padding-top:20px;}
+
+  .section-eyebrow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--text-secondary);
+    font-size:13px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:6px;
+  }
+  section h2{
+    font-size:28px;
+    margin:0 0 18px 0;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  section h2 .emoji{font-size:24px;}
+
+  p{margin:0 0 14px 0;}
+  .lead{font-size:17px;color:var(--text);}
+
+  /* ---------- Image placeholders ---------- */
+  .placeholder{
+    background:var(--placeholder-bg);
+    border:1.5px dashed var(--placeholder-border);
+    border-radius:var(--radius);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:var(--text-secondary);
+    font-size:13px;
+    text-align:center;
+    gap:6px;
+    padding:16px;
+  }
+  .placeholder .icon{
+    width:30px;height:30px;
+    opacity:.55;
+  }
+  .placeholder .label{font-weight:600;color:var(--text);}
+  .placeholder .sub{font-size:11.5px;color:var(--text-secondary);}
+
+  /* form-factor variants */
+  .ph-wide{width:100%; aspect-ratio:16/9;}
+  .ph-square{aspect-ratio:1/1;}
+  .ph-portrait{aspect-ratio:3/4;}
+  .ph-banner{width:100%; aspect-ratio:21/6;}
+
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin:18px 0 26px 0;
+  }
+  .gallery.two-col{grid-template-columns:repeat(2,1fr);}
+
+  /* ---------- Newspaper-style About layout ---------- */
+  .about-grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:36px;
+    align-items:start;
+    margin-bottom:22px;
+  }
+  .about-text .lead{
+    font-size:17px;
+  }
+  .about-image .placeholder{
+    height:100%;
+    min-height:260px;
+  }
+  .about-bottom{
+    margin-top:6px;
+    font-size:15.5px;
+    color:var(--text);
+  }
+  @media (max-width:700px){
+    .about-grid{grid-template-columns:1fr;}
+    .about-image .placeholder{min-height:200px;}
+  }
+
+  /* ---------- Contact ---------- */
+  .contact-box{
+    background:var(--accent);
+    color:white;
+    border-radius:10px;
+    padding:40px 44px;
+    margin-top:10px;
+  }
+  .contact-box h2{
+    color:white;
+    border-bottom:1px solid rgba(255,255,255,.25);
+  }
+  .contact-box p{color:rgba(255,255,255,.85);}
+  .contact-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px;}
+  .contact-links a{
+    background:white;
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:600;
+    font-size:14px;
+    padding:10px 18px;
+    border-radius:6px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--text-secondary);
+    font-size:12.5px;
+    padding:40px 20px 10px 20px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px){
+    .sidebar{
+      position:fixed;
+      left:0;top:0;
+      transform:translateX(-100%);
+      transition:transform .2s ease;
+      z-index:40;
+      box-shadow:2px 0 12px rgba(0,0,0,.08);
+    }
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-toggle{display:flex;}
+    .page-header, .content{padding:0 24px;}
+    .page-title{font-size:32px;}
+    .gallery{grid-template-columns:1fr 1fr;}
+    .cover{height:160px;}
+    .page-header{margin-top:-32px;}
+    .page-icon{width:64px;height:64px;font-size:28px;border-radius:12px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar-toggle" id="sidebarToggle">☰</div>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-title">
+      <div class="avatar-dot">MJ</div>
+      Madeleine Jiang
+    </div>
+    <a class="nav-item" data-target="about"><span class="emoji">👋</span> About Me</a>
+    <a class="nav-item" data-target="initiative"><span class="emoji">🚀</span> The Initiative</a>
+    <!--
+    <a class="nav-item" data-target="projects"><span class="emoji">🛠️</span> Projects &amp; Robotics</a>
+    <a class="nav-item" data-target="experience"><span class="emoji">💼</span> Experience</a>
+    <a class="nav-item" data-target="skills"><span class="emoji">🧠</span> Skills</a>
+    <a class="nav-item" data-target="awards"><span class="emoji">🏆</span> Awards</a>
+    <a class="nav-item" data-target="leadership"><span class="emoji">🌱</span> Leadership</a>
+    -->
+    <a class="nav-item" data-target="contact"><span class="emoji">✉️</span> Contact</a>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="cover">
+      <img src="img/work.gif" alt="Madeleine working" style="width:100%;height:100%;object-fit:cover;">
+    </div>
+
+    <div class="page-header">
+      <div class="page-icon">🧩</div>
+      <h1 class="page-title">Madeleine Jiang</h1>
+      <p class="page-subtitle">Rising high school junior leading a self-directed STEM initiative to design engineering solutions for real-world challenges facing local organizations.</p>
+
+      <div class="meta-row">
+        <span>📍 Rancho Palos Verdes, CA</span>
+        <a href="mailto:madeleineajiang@gmail.com">madeleineajiang@gmail.com</a>
+        <span>(424) 677-9006</span>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag">Robotics</span>
+        <span class="tag">CAD &amp; Manufacturing</span>
+        <span class="tag">Electrical Design</span>
+        <span class="tag">Python &amp; C++</span>
+        <span class="tag">Deep Learning / CV</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ABOUT (newspaper layout: text left, image right, full-width text below) -->
+      <section id="about">
+        <h2><span class="emoji">👋</span> About Me</h2>
+
+        <div class="about-grid">
+          <div class="about-text">
+            <p class="lead">
+              I'm Madeleine Jiang, an incoming 11th grader at California Academy of Mathematics and Science. I've always been drawn to creative work, whether that's through art, music, or designing and building things with my hands, and that ultimately led me into STEM. Robotics let me combine creativity with problem solving, and I've been pursuing that combination ever since, each project at a time.
+            </p>
+          </div>
+          <div class="about-image">
+            <img src="img/roboticsMe.JPG" alt="Madeleine Jiang" style="width:180px;height:240px;object-fit:cover;border-radius:6px;">
+          </div>
+        </div>
+
+        <p class="about-bottom">
+          Along the way I've realized how deeply my personal hobbies and experiences have shaped the way my projects turn out, and that what I actually care about isn't just making something that works, it's making something that feels thought through, almost like design in its own right. Now I'm using what I've learned to visit local organizations and see if there are everyday problems I could help solve with something I build myself.
+        </p>
+      </section>
+
+      <!-- THE INITIATIVE -->
+      <section id="initiative">
+        <h2><span class="emoji">🚀</span> The Initiative</h2>
+
+        <div class="section-eyebrow">The Problem</div>
+        <p>
+          Local organizations deal with a lot of small, everyday tasks that still get done by hand: counting donations, logging inventory, keeping track of stock. Nobody questions it much, it's just how things have always been done, but a lot of these tasks could be made easier with smart environments.
+        </p>
+
+        <p>
+          Smart environments are everyday objects with a small computer and a way to connect, so they can sense what's happening and act on their own instead of waiting for someone to check by hand. A smart speaker listens and responds, a smart lock knows when to open, it's less about the object itself and more about giving ordinary things a way to notice something and tell you about it.
+        </p>
+
+        <div class="ph-banner" style="margin-bottom:26px;">
+          <img src="img/ENBimage.png" alt="Problem and research visual" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+        </div>
+
+        <p>
+          That's the same idea behind what I build, just aimed at solving one specific operational challenge at a time. I don't walk in with a device already in mind, I work with what a client actually needs and design around it. A shelf that tracks its own inventory might work well for most items, but not every item fits a standard shelf, so the research and prototyping is what lets me adjust the form to fit the problem instead of the other way around.
+        </p>
+
+        <div class="section-eyebrow">The Approach</div>
+        <p>
+          For all 8 years I've spent in robotics, I've used the same steps: define the problem, sketch out ideas, build a prototype, test it, and adjust based on what happens. Every step is recorded in detail, sketches, test results, notes on what to change, because that documentation is what drives the next decision.
+        </p>
+
+        <div class="gallery">
+          <div class="ph-square">
+            <img src="img/sketches.jpg" alt="Early concept sketches" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+          </div>
+          <div class="ph-square">
+            <img src="img/crayola.png" alt="First prototype build" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+          </div>
+          <div class="ph-square">
+            <img src="img/macropad.png" alt="Refined prototype build" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+          </div>
+        </div>
+
+        <div class="section-eyebrow">Where It Stands</div>
+        <p>
+          Currently in the research stage, reaching out to local organizations to learn about their day to day processes and find out where a device could actually help. No prototype yet, as that comes after I understand the actual problem well enough to design for it.
+        </p>
+
+        <div class="section-eyebrow">What's Next</div>
+        <ul class="bullets">
+          <li><strong>Define</strong> — keep reaching out to local organizations to find real problems worth solving</li>
+          <li><strong>Prototype</strong> — build a working device based on what they actually need</li>
+          <li><strong>Test</strong> — bring it on site and see how it holds up in real use</li>
+          <li><strong>Iterate</strong> — adjust based on what actually happens, not what I assumed</li>
+          <li><strong>Document</strong> — write up the process so the next project builds on the last</li>
+        </ul>
+      </section>
+
+      <!-- ================================================================
+           SECTIONS BELOW ARE TEMPORARILY DISABLED (commented out).
+           To bring any of them back, remove the comment markers
+           surrounding that section.
+           ================================================================ -->
+
+      <!-- PROJECTS / ROBOTICS -->
+      <!--
+      <section id="projects">
+        <h2><span class="emoji">🛠️</span> Projects &amp; Robotics</h2>
+        <p class="lead">A look at the robotics and engineering work behind the initiative.</p>
+
+        <div class="project-block">
+          <div class="project-title">CAMS FRC Team 687 — The Nerd Herd</div>
+          <div class="project-meta">CAD Team · Competition Strategy Team · 2025–2026</div>
+          <p>Designed the robot shooter and hopper mechanisms, contributing to continuous design improvement across the season.</p>
+          <div class="gallery">
+            <div class="placeholder ph-square"><div class="label">Robot photo</div><div class="sub">Full robot shot</div></div>
+            <div class="placeholder ph-square"><div class="label">CAD render</div><div class="sub">Shooter/hopper model</div></div>
+            <div class="placeholder ph-square"><div class="label">Competition photo</div><div class="sub">Team at an event</div></div>
+          </div>
+        </div>
+
+        <div class="project-block">
+          <div class="project-title">CAMS Engineering Design &amp; Development (EDD)</div>
+          <div class="project-meta">Manufacturing &amp; Electrical Intern · 2024–2026</div>
+          <ul class="bullets">
+            <li>Designed and built electrical systems for student-built robots as the sole electrical intern on a senior-led team.</li>
+            <li>Designed and built electrical layouts for docking towers used by student-built rockets and drones.</li>
+          </ul>
+          <div class="gallery two-col">
+            <div class="placeholder ph-wide"><div class="label">Electrical schematic</div><div class="sub">Wiring diagram or layout</div></div>
+            <div class="placeholder ph-wide"><div class="label">Build photo</div><div class="sub">Docking tower or robot electronics</div></div>
+          </div>
+        </div>
+
+        <div class="project-block">
+          <div class="project-title">VEX Robotics</div>
+          <div class="project-meta">Team Captain · World Skills ranked 11th of 11,400+ teams · 2024–2025</div>
+          <ul class="bullets">
+            <li>Led team to State Championships as Team Captain, managing organization and project workflow.</li>
+            <li>Mentored teammates in CAD, programming, and documentation.</li>
+          </ul>
+          <div class="gallery">
+            <div class="placeholder ph-portrait"><div class="label">Team photo</div><div class="sub">At competition</div></div>
+            <div class="placeholder ph-square"><div class="label">Robot close-up</div><div class="sub">Mechanism detail</div></div>
+            <div class="placeholder ph-portrait"><div class="label">Award photo</div><div class="sub">Holding trophy/medal</div></div>
+          </div>
+        </div>
+
+        <div class="project-block">
+          <div class="project-title">[Add another project here]</div>
+          <div class="project-meta">[Role · Timeframe]</div>
+          <p>[Short description of what you built and what you learned.]</p>
+          <div class="gallery two-col">
+            <div class="placeholder ph-wide"><div class="label">Photo/video</div><div class="sub">Add media here</div></div>
+            <div class="placeholder ph-wide"><div class="label">Photo/video</div><div class="sub">Add media here</div></div>
+          </div>
+        </div>
+      </section>
+      -->
+
+      <!-- EXPERIENCE -->
+      <!--
+      <section id="experience">
+        <h2><span class="emoji">💼</span> Experience</h2>
+
+        <div class="exp-card">
+          <div class="exp-header">
+            <span class="exp-role">simplehuman — R&amp;D Intern</span>
+            <span class="exp-date">2026</span>
+          </div>
+          <div class="exp-sub">Manufacturing &amp; Electrical Intern</div>
+          <ul class="bullets">
+            <li>Developed early-stage prototypes for new product segments in the R&amp;D team.</li>
+            <li>Built proficiency in rapid prototyping and user-centered engineering.</li>
+            <li>Enhanced existing products through implementation of new technologies.</li>
+          </ul>
+        </div>
+
+        <div class="exp-card">
+          <div class="exp-header">
+            <span class="exp-role">CAMS Engineering Design &amp; Development (EDD)</span>
+            <span class="exp-date">2024 – 2026</span>
+          </div>
+          <div class="exp-sub">Manufacturing &amp; Electrical Intern</div>
+          <ul class="bullets">
+            <li>Designed and built electrical systems for student-built robots; developed collaboration and problem-solving skills as the sole electrical intern on a senior-led team.</li>
+            <li>Designed and built electrical layouts of docking towers for student-built rockets and drones; gained hands-on electrical and manufacturing experience while also learning from seniors.</li>
+          </ul>
+        </div>
+
+        <div class="exp-card">
+          <div class="exp-header">
+            <span class="exp-role">CAMS FRC Team 687 — The Nerd Herd</span>
+            <span class="exp-date">2025 – 2026</span>
+          </div>
+          <div class="exp-sub">CAD Team · Competition Strategy Team</div>
+          <ul class="bullets">
+            <li>Designed the robot shooter and hopper; contributed to continuous design improvement.</li>
+          </ul>
+        </div>
+      </section>
+      -->
+
+      <!-- SKILLS -->
+      <!--
+      <section id="skills">
+        <h2><span class="emoji">🧠</span> Skills</h2>
+        <div class="skills-grid">
+          <div class="skill-group">
+            <h3>Technical</h3>
+            <div class="pill-row">
+              <span class="pill">User-Centered Engineering</span>
+              <span class="pill">Python &amp; C++</span>
+              <span class="pill">CAD (Fusion, Onshape, Inventor)</span>
+              <span class="pill">3D Printing &amp; Assembly</span>
+              <span class="pill">Electrical Design &amp; Schematics</span>
+              <span class="pill">Deep Learning / Computer Vision</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h3>Leadership &amp; Soft Skills</h3>
+            <div class="pill-row">
+              <span class="pill">Leadership</span>
+              <span class="pill">Project Management</span>
+              <span class="pill">Team Collaboration</span>
+              <span class="pill">Mentorship</span>
+              <span class="pill">Problem-Solving</span>
+              <span class="pill">Adaptability</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      -->
+
+      <!-- AWARDS -->
+      <!--
+      <section id="awards">
+        <h2><span class="emoji">🏆</span> Awards &amp; Accomplishments</h2>
+
+        <div class="award-group">
+          <h3>Science &amp; Engineering Fair</h3>
+          <div class="award-item"><span>LA County SEF — STEAM Superhero Scholarship Innovation Award (Adversarial Makeup on Facial Recognition)</span><span class="award-year">2025</span></div>
+          <div class="award-item"><span>LA County SEF — 3rd Place, Jr. Engineering Applications (IoT Hot Car Deaths Prevention Device)</span><span class="award-year">2024</span></div>
+        </div>
+
+        <div class="award-group">
+          <h3>VEX Robotics</h3>
+          <div class="award-item"><span>VEX World Skills Standing — ranked 11th of 11,400+ teams worldwide</span><span class="award-year">2025</span></div>
+          <div class="award-item"><span>VEX AI World Championship — Create Award</span><span class="award-year">2024</span></div>
+        </div>
+
+        <div class="award-group">
+          <h3>FIRST Robotics Competition</h3>
+          <div class="award-item"><span>Aerospace Valley Regional — Tournament Finalist &amp; Quality Award</span><span class="award-year">2026</span></div>
+          <div class="award-item"><span>Los Angeles Regional — Tournament Finalist &amp; Quality Award</span><span class="award-year">2026</span></div>
+          <div class="award-item"><span>FRC World Championship</span><span class="award-year">2026</span></div>
+        </div>
+
+        <div class="award-group">
+          <h3>NCWIT Aspirations in Computing</h3>
+          <div class="award-item"><span>Los Angeles Affiliate Winner</span><span class="award-year">2025</span></div>
+        </div>
+      </section>
+      -->
+
+      <!-- LEADERSHIP -->
+      <!--
+      <section id="leadership">
+        <h2><span class="emoji">🌱</span> Leadership &amp; Volunteering</h2>
+
+        <div class="exp-card">
+          <div class="exp-header"><span class="exp-role">Vice President — Los Amigos de Las Lomas</span></div>
+          <ul class="bullets">
+            <li>Coordinates communication, meetings, and events with the Luskin Orthopedic Institute for Children.</li>
+          </ul>
+        </div>
+
+        <div class="exp-card">
+          <div class="exp-header"><span class="exp-role">Team Captain — VEX Robotics</span></div>
+          <ul class="bullets">
+            <li>Led team to State Championships; managed organization and project workflow.</li>
+            <li>Mentored members in CAD, programming, and documentation.</li>
+          </ul>
+        </div>
+
+        <div class="skill-group" style="margin-top:20px;">
+          <h3>Volunteer Recognition</h3>
+          <div class="pill-row">
+            <span class="pill">Gold PVSA — 2024</span>
+            <span class="pill">Gold PVSA — 2023</span>
+            <span class="pill">Bronze PVSA — 2022</span>
+          </div>
+        </div>
+      </section>
+      -->
+
+      <!-- CONTACT -->
+      <section id="contact">
+        <div class="contact-box">
+          <h2><span class="emoji">✉️</span> Get in Touch</h2>
+          <p>Interested in collaborating, mentoring, or learning more about the initiative? I'd love to hear from you.</p>
+          <div class="contact-links">
+            <a href="mailto:madeleineajiang@gmail.com">✉️ madeleineajiang@gmail.com</a>
+            <a href="tel:4246779006">📞 (424) 677-9006</a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<footer>Built by Madeleine Jiang · Replace placeholder text and images throughout before publishing</footer>
+
+<script>
+  // Scrollspy for sidebar nav
+  const navItems = document.querySelectorAll('.nav-item');
+  const sections = document.querySelectorAll('section[id]');
+
+  function setActive(){
+    let current = sections[0].id;
+    const scrollPos = window.scrollY + 140;
+    sections.forEach(sec=>{
+      if(scrollPos >= sec.offsetTop) current = sec.id;
+    });
+    navItems.forEach(item=>{
+      item.classList.toggle('active', item.dataset.target === current);
+    });
+  }
+  window.addEventListener('scroll', setActive);
+  setActive();
+
+  navItems.forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const target = document.getElementById(item.dataset.target);
+      if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+      sidebar.classList.remove('open');
+    });
+  });
+
+  // mobile sidebar toggle
+  const sidebar = document.getElementById('sidebar');
+  const toggle = document.getElementById('sidebarToggle');
+  toggle.addEventListener('click', ()=> sidebar.classList.toggle('open'));
+</script>
+
+</body>
+</html>
